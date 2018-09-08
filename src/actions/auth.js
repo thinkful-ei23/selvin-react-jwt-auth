@@ -3,12 +3,17 @@ import {SubmissionError} from 'redux-form';
 
 import {API_BASE_URL} from '../config';
 import {normalizeResponseErrors} from './utils';
-import {saveAuthToken, clearAuthToken} from '../local-storage';
-
+//import {saveAuthToken, clearAuthToken} from '../local-storage';
+import {clearAuthToken} from '../local-storage';
 export const SET_AUTH_TOKEN = 'SET_AUTH_TOKEN';
 export const setAuthToken = authToken => ({
     type: SET_AUTH_TOKEN,
     authToken
+});
+
+export const SHOW_WARNING = 'SHOW_WARNING';
+export const showWarning = () => ({
+    type: SHOW_WARNING
 });
 
 export const CLEAR_AUTH = 'CLEAR_AUTH';
@@ -22,7 +27,7 @@ export const authRequest = () => ({
 });
 
 export const AUTH_SUCCESS = 'AUTH_SUCCESS';
-export const authSuccess = currentUser => ({
+export const authSuccess = currentUser => ({ 
     type: AUTH_SUCCESS,
     currentUser
 });
@@ -39,7 +44,7 @@ const storeAuthInfo = (authToken, dispatch) => {
     const decodedToken = jwtDecode(authToken);
     dispatch(setAuthToken(authToken));
     dispatch(authSuccess(decodedToken.user));
-    saveAuthToken(authToken);
+    //saveAuthToken(authToken);
 };
 
 export const login = (username, password) => dispatch => {
@@ -79,6 +84,7 @@ export const login = (username, password) => dispatch => {
 };
 
 export const refreshAuthToken = () => (dispatch, getState) => {
+  console.log('refreshAuthToken', dispatch);
     dispatch(authRequest());
     const authToken = getState().auth.authToken;
     return fetch(`${API_BASE_URL}/auth/refresh`, {
@@ -99,4 +105,14 @@ export const refreshAuthToken = () => (dispatch, getState) => {
             dispatch(clearAuth());
             clearAuthToken(authToken);
         });
+};
+
+export const deleteAuthToken = () => (dispatch, getState) => {
+  const authToken = getState().auth.authToken;
+  dispatch(clearAuth());
+  clearAuthToken(authToken);
+};
+export const showLogoutWarning = () => (dispatch) => {
+  console.log('dispatching 1 min left warning', Date.now());
+  dispatch(showWarning());
 };
